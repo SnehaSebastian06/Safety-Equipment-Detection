@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image</title>
+    <style>
+        body {
+            background-image: url('static/try1.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-family: 'sans-serif', Tahoma, Geneva, Verdana;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .heading {
+            color: #080116a3;
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .box {
+            background-color: #a2acaf;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #080116a3;
+            font-size: 30px;
+            margin-top: 5px;
+            font-family: 'sans-serif'!important;
+        }
+        h2{
+            color: #080116a3;
+            font-size: 50px;
+            margin-top: 5px;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #848f9c;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-top: 12px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            
+            font-family: 'sans-serif';
+        }
+
+        .button:hover {
+            background-color: #6d7d8b;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        .upload-form {
+            margin-bottom: 20px;
+            color: #080116a3;
+            font-size: 20px;
+        }
+        #video, #canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        #snap {
+            display: block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #upload-webcam-form {
+            display: none;
+        }
+        .green-button {
+            background-color: #080116a3;
+            color: #ffffff;
+            font-family: 'sans-serif';
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+           
+        }
+
+        .green-button:hover {
+            background-color: #1d85da;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="heading">
+            <h2>DETECTION</h2>
+        </div>
+        <div class="box">
+            <h1>Upload Image</h1>
+            <div class="upload-form">
+                <form action="/upload_file" method="post" enctype="multipart/form-data">
+                    <label>Select Model:</label><br><br>
+                    <!-- Convert model selection into radio buttons -->
+                    {% for model_name, _ in models.items() %}
+                    <input type="radio" id="{{ model_name }}" name="model" value="{{ model_name }}">
+                    <label for="{{ model_name }}">{{ model_name }}</label><br>
+                    {% endfor %}
+                    <br>
+                    <input type="file" name="file">
+                    <input type="submit" class="green-button" value="Detect Objects">
+                </form>
+            </div>
+        </div>
+        
+<div class="box">
+    <h1>Detect Hard Hats</h1>
+    <form action="/detect_hard_hats" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" class="green-button" value="Detect Hard Hats">
+    </form>
+</div>
+
+
+        <div class="box">
+            <h1>Compare All Models</h1>
+            <form action="/detect_all_models" method="post" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <input type="submit" class="green-button" value="Detect Objects with All Models">
+            </form>
+        </div>
+        <a href="/" class="button">Back</a>
+    </div>
+    <script>
+        document.getElementById('open-webcam').onclick = function() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(mediaStream) {
+                var video = document.getElementById('video');
+                var canvas = document.getElementById('canvas');
+                var image_data = document.getElementById('image_data');
+                var snapButton = document.getElementById('snap');
+                var uploadForm = document.getElementById('upload-webcam-form');
+
+                video.srcObject = mediaStream;
+                video.play();
+                video.style.display = 'block';
+
+                // Set up canvas dimensions to match video
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.style.display = 'block';
+
+                image_data.style.display = 'block';
+                snapButton.style.display = 'block';
+                uploadForm.style.display = 'block';
+            })
+            .catch(function(err) { console.log(err.name + ": " + err.message); });
+        }
+
+        // Trigger photo take
+        document.getElementById("snap").addEventListener("click", function() {
+            var video = document.getElementById('video');
+            var canvas = document.getElementById('canvas');
+            var context = canvas.getContext('2d');
+            var image_data = document.getElementById('image_data');
+            var selected_model = document.querySelector('input[name="model"]:checked');
+
+            // Check if a model is selected
+            if (!selected_model) {
+                alert("Please select a model");
+                return;
+            }
+
+            // Ensure canvas dimensions match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+            image_data.value = canvas.toDataURL();
+        });
+    </script>
+
+</body>
+</html>

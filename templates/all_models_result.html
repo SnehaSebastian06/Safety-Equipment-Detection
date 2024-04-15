@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection Results for All Models</title>
+    <style>
+        body {
+            background-image: url('static/try1.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-family: 'sans-serif';
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .container {
+            display: flex;
+            background-color: #a2acaf;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+        .result {
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .result img {
+            width: 200px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #080116a3;
+            color: #fff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #313f4d;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #080116a3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Detection Results for All Models</h1>
+    <div class="container">
+        {% for model_name, result in detection_results.items() %}
+        <div class="result">
+            <h2>{{ model_name }}</h2>
+            <img src="data:image/jpeg;base64,{{ result['image_data'] }}" alt="Detection Result">
+            <table>
+                <tr>
+                    <th>Class Name</th>
+                    <th>Confidence Score</th>
+                </tr>
+                {% for detection_result in result['results'] %}
+                <tr>
+                    <td>{{ detection_result['class_name'] }}</td>
+                    <td>{{ detection_result['confidence'] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+    <a href="/upload" class="button">Back to Upload </a>
+    <a href="/" class="button">Back to Home</a>
+</body>
+</html>
